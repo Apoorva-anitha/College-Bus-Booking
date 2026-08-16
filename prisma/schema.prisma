@@ -1,0 +1,224 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  STUDENT
+  DRIVER
+  ADMIN
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+  BOARDED
+  NO_SHOW
+}
+
+enum TripStatus {
+  SCHEDULED
+  BOARDING
+  DEPARTED
+  IN_TRANSIT
+  COMPLETED
+  DELAYED
+  CANCELLED
+}
+
+enum BusStatus {
+  AVAILABLE
+  ASSIGNED
+  IN_TRANSIT
+  MAINTENANCE
+}
+
+enum DriverStatus {
+  AVAILABLE
+  ON_TRIP
+  OFF_DUTY
+  LEAVE
+}
+
+model User {
+  id           String    @id @default(uuid())
+  username     String    @unique
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         Role
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  studentProfile StudentRecord?
+  driverProfile  Driver?
+  auditLogs      AuditLog[]
+
+  @@map("users")
+}
+
+model StudentRecord {
+  id                 String    @id @default(uuid())
+  userId             String?   @unique
+  user               User?     @relation(fields: [userId], references: [id])
+  registrationNumber String    @unique
+  name               String
+  email              String    @unique
+  department         String
+  year               Int
+  section            String
+  isHosteller        Boolean   @default(false)
+  hostelName         String?
+  phone              String?
+  active             Boolean   @default(true)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  bookings           Booking[]
+
+  @@index([registrationNumber])
+  @@index([isHosteller])
+  @@map("student_records")
+}
+
+model DepartureSlot {
+  id          String   @id @default(uuid())
+  time        String   // "15:00" | "17:00"
+  label       String   // "3:00 PM Slot"
+  cutoffTime  String   // "14:30"
+  active      Boolean  @default(true)
+  description String?
+
+  bookings    Booking[]
+  trips       Trip[]
+
+  @@map("departure_slots")
+}
+
+model Area {
+  id           String    @id @default(uuid())
+  name         String    @unique // e.g. "Adyar", "Guindy", "Velachery"
+  corridorCode String    // "ADY", "GND", "VEL", "OMR", "BES"
+  centerLat    Float
+  centerLng    Float
+  active       Boolean   @default(true)
+
+  stops        BusStop[]
+
+  @@map("areas")
+}
+
+model BusStop {
+  id          String   @id @default(uuid())
+  areaId      String
+  area        Area     @relation(fields: [areaId], references: [id])
+  name        String
+  latitude    Float
+  longitude   Float
+  sequence    Int
+  landmark    String?
+
+  bookings    Booking[]
+
+  @@map("bus_stops")
+}
+
+model Bus {
+  id             String    @id @default(uuid())
+  busNumber      String    @unique
+  registrationNo String    @unique
+  capacity       Int       @default(50)
+  status         BusStatus @default(AVAILABLE)
+  fuelType       String    @default("DIESEL")
+  currentLat     Float?
+  currentLng     Float?
+
+  trips          Trip[]
+
+  @@map("buses")
+}
+
+model Driver {
+  id           String       @id @default(uuid())
+  userId       String?      @unique
+  user         User?        @relation(fields: [userId], references: [id])
+  name         String
+  licenseNo    String       @unique
+  phone        String
+  status       DriverStatus @default(AVAILABLE)
+
+  trips        Trip[]
+
+  @@map("drivers")
+}
+
+model Booking {
+  id                 String        @id @default(uuid())
+  date               String        // "YYYY-MM-DD"
+  slotId             String
+  slot               DepartureSlot @relation(fields: [slotId], references: [id])
+  studentId          String
+  student            StudentRecord @relation(fields: [studentId], references: [id])
+  stopId             String
+  stop               BusStop       @relation(fields: [stopId], references: [id])
+  status             BookingStatus @default(CONFIRMED)
+  seatNumber         Int?
+  token              String        @unique
+  tripId             String?
+  trip               Trip?         @relation(fields: [tripId], references: [id])
+  boardedAt          DateTime?
+  cancelledAt        DateTime?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  @@unique([date, slotId, studentId, status])
+  @@index([date, slotId])
+  @@map("bookings")
+}
+
+model Trip {
+  id             String        @id @default(uuid())
+  date           String        // "YYYY-MM-DD"
+  slotId         String
+  slot           DepartureSlot @relation(fields: [slotId], references: [id])
+  busId          String
+  bus            Bus           @relation(fields: [busId], references: [id])
+  driverId       String
+  driver         Driver        @relation(fields: [driverId], references: [id])
+  routeName      String
+  corridorCode   String
+  status         TripStatus    @default(SCHEDULED)
+  scheduledTime  String
+  actualStart    DateTime?
+  actualEnd      DateTime?
+  assignedStops  Json          // Ordered Array of stops with ETAs
+  delayMinutes   Int           @default(0)
+  delayReason    String?
+
+  bookings       Booking[]
+
+  @@index([date, slotId])
+  @@map("trips")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  timestamp DateTime @default(now())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  entityId  String?
+  details   Json?
+  ipAddress String?
+  hash      String
+
+  @@index([action])
+  @@index([timestamp])
+  @@map("audit_logs")
+}

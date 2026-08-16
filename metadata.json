@@ -1,0 +1,6 @@
+{
+  "name": "Smart College Bus Management & Route Optimizer",
+  "description": "Dynamic demand-driven college transit platform with multi-corridor route optimization, real-time booking concurrency protection, Adyar graph routing, and role-based portals for students, drivers, and transport administrators.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
