@@ -1,20 +1,12 @@
 import React, { useState } from 'react';
-import { User, StudentRecord } from '../types';
+import { User } from '../types';
 import { apiFetch, safeJson } from '../utils/api';
 import { 
   Bus, 
   Shield, 
   GraduationCap, 
-  KeyRound, 
   ArrowRight, 
-  CheckCircle2, 
-  AlertCircle, 
-  Sparkles, 
-  Building, 
-  Compass, 
-  Zap,
-  Lock,
-  UserCheck
+  AlertCircle
 } from 'lucide-react';
 
 interface LoginPortalProps {
@@ -24,74 +16,16 @@ interface LoginPortalProps {
 export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
   const [roleTab, setRoleTab] = useState<'STUDENT' | 'DRIVER' | 'ADMIN'>('STUDENT');
   
-  // Student Form State
-  const [studentRegNo, setStudentRegNo] = useState('312324104001');
-  const [studentPassword, setStudentPassword] = useState('312324104001');
+  // Student Form State (Requires explicit entry)
+  const [studentRegNo, setStudentRegNo] = useState('');
+  const [studentPassword, setStudentPassword] = useState('');
   
-  // Driver / Admin Form State
-  const [username, setUsername] = useState('admin_transport');
-  const [password, setPassword] = useState('password');
+  // Driver / Admin Form State (Requires explicit entry)
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  // Quick Demo Login Presets
-  const handleQuickLogin = async (role: 'STUDENT_DAY_SCHOLAR' | 'STUDENT_HOSTELLER' | 'DRIVER' | 'ADMIN') => {
-    setIsLoading(true);
-    setErrorMessage(null);
-
-    try {
-      if (role === 'STUDENT_DAY_SCHOLAR') {
-        const res = await apiFetch('/api/auth/student/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ registrationNumber: '312324104001', password: '312324104001' })
-        });
-        const data = await safeJson(res, null);
-        if (res.ok && data?.user) {
-          onLoginSuccess(data.user, data.token);
-          return;
-        }
-      } else if (role === 'STUDENT_HOSTELLER') {
-        const res = await apiFetch('/api/auth/student/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ registrationNumber: '312324104125', password: '312324104125' })
-        });
-        const data = await safeJson(res, null);
-        if (res.ok && data?.user) {
-          onLoginSuccess(data.user, data.token);
-          return;
-        }
-      } else if (role === 'DRIVER') {
-        const res = await apiFetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: 'driver_selvam', password: 'password' })
-        });
-        const data = await safeJson(res, null);
-        if (res.ok && data?.user) {
-          onLoginSuccess(data.user, data.token);
-          return;
-        }
-      } else if (role === 'ADMIN') {
-        const res = await apiFetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: 'admin_transport', password: 'password' })
-        });
-        const data = await safeJson(res, null);
-        if (res.ok && data?.user) {
-          onLoginSuccess(data.user, data.token);
-          return;
-        }
-      }
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Login failed. Please check credentials.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // Form Submit Handler
   const handleSubmit = async (e: React.FormEvent) => {
@@ -111,7 +45,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
         });
         const data = await safeJson<{ success?: boolean; user?: User; token?: string; error?: string }>(res, { error: 'Authentication failed' });
         if (!res.ok || !data.user) {
-          throw new Error(data.error || 'Authentication failed');
+          throw new Error(data.error || 'Authentication failed. Please verify your Registration Number and Password.');
         }
         onLoginSuccess(data.user, data.token);
       } else {
@@ -125,12 +59,12 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
         });
         const data = await safeJson<{ success?: boolean; user?: User; token?: string; error?: string }>(res, { error: 'Authentication failed' });
         if (!res.ok || !data.user) {
-          throw new Error(data.error || 'Authentication failed');
+          throw new Error(data.error || 'Invalid credentials. Please verify your username and password.');
         }
         onLoginSuccess(data.user, data.token);
       }
     } catch (err: any) {
-      setErrorMessage(err.message || 'Invalid credentials');
+      setErrorMessage(err.message || 'Invalid credentials. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -160,15 +94,14 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
           </p>
         </div>
 
-        {/* 3 Dashboards Summary Banner */}
+        {/* 3 Dashboards Overview Banner */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           
           {/* Student Dashboard Card */}
           <div 
             onClick={() => {
               setRoleTab('STUDENT');
-              setStudentRegNo('312324104001');
-              setStudentPassword('312324104001');
+              setErrorMessage(null);
             }}
             className={`cursor-pointer rounded-xl p-4 border transition-all ${
               roleTab === 'STUDENT'
@@ -181,7 +114,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
                 <GraduationCap className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-xs font-bold text-white">1. Student Dashboard</h3>
+                <h3 className="text-xs font-bold text-white">1. Student Portal</h3>
                 <span className="text-[10px] text-blue-400 font-medium">Day Scholar Passes & Booking</span>
               </div>
             </div>
@@ -194,7 +127,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
           <div 
             onClick={() => {
               setRoleTab('DRIVER');
-              setUsername('driver_selvam');
+              setErrorMessage(null);
             }}
             className={`cursor-pointer rounded-xl p-4 border transition-all ${
               roleTab === 'DRIVER'
@@ -207,7 +140,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
                 <Bus className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-xs font-bold text-white">2. Driver Dashboard</h3>
+                <h3 className="text-xs font-bold text-white">2. Driver Portal</h3>
                 <span className="text-[10px] text-emerald-400 font-medium">Assigned Trips & Check-In</span>
               </div>
             </div>
@@ -220,7 +153,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
           <div 
             onClick={() => {
               setRoleTab('ADMIN');
-              setUsername('admin_transport');
+              setErrorMessage(null);
             }}
             className={`cursor-pointer rounded-xl p-4 border transition-all ${
               roleTab === 'ADMIN'
@@ -238,7 +171,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
               </div>
             </div>
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              Demand analytics, multi-objective route optimizer, student registry, fleet tracker, audit logs, and test lab.
+              Demand analytics, multi-objective route optimizer, student registry, fleet tracker, and audit logs.
             </p>
           </div>
 
@@ -253,8 +186,6 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
               id="auth-tab-student"
               onClick={() => {
                 setRoleTab('STUDENT');
-                setStudentRegNo('312324104001');
-                setStudentPassword('312324104001');
                 setErrorMessage(null);
               }}
               className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center space-x-2 ${
@@ -271,8 +202,6 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
               id="auth-tab-driver"
               onClick={() => {
                 setRoleTab('DRIVER');
-                setUsername('driver_selvam');
-                setPassword('password');
                 setErrorMessage(null);
               }}
               className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center space-x-2 ${
@@ -289,8 +218,6 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
               id="auth-tab-admin"
               onClick={() => {
                 setRoleTab('ADMIN');
-                setUsername('admin_transport');
-                setPassword('password');
                 setErrorMessage(null);
               }}
               className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center space-x-2 ${
@@ -416,102 +343,6 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
               )}
             </button>
           </form>
-
-          {/* Quick Demo Instant Presets */}
-          <div className="pt-4 border-t border-slate-800 space-y-3">
-            <div className="flex items-center space-x-1.5 text-xs text-slate-400">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span className="font-semibold text-slate-300">1-Click Demo Persona Launchers:</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              
-              {/* Day Scholar Preset */}
-              <button
-                id="btn-demo-day-scholar"
-                type="button"
-                onClick={() => handleQuickLogin('STUDENT_DAY_SCHOLAR')}
-                className="p-2.5 bg-slate-800 hover:bg-slate-700/80 border border-slate-700 rounded-xl text-left transition-all flex items-center justify-between group"
-              >
-                <div className="flex items-center space-x-2">
-                  <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xs font-bold">
-                    DS
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors">
-                      Aakash A (312324104001)
-                    </div>
-                    <div className="text-[10px] text-emerald-400 font-medium">Day Scholar • Bus Eligible</div>
-                  </div>
-                </div>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
-              </button>
-
-              {/* Hosteller Preset */}
-              <button
-                id="btn-demo-hosteller"
-                type="button"
-                onClick={() => handleQuickLogin('STUDENT_HOSTELLER')}
-                className="p-2.5 bg-slate-800 hover:bg-slate-700/80 border border-slate-700 rounded-xl text-left transition-all flex items-center justify-between group"
-              >
-                <div className="flex items-center space-x-2">
-                  <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xs font-bold">
-                    HR
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-white group-hover:text-amber-300 transition-colors">
-                      Divakar G (312324104125)
-                    </div>
-                    <div className="text-[10px] text-amber-400 font-medium">Hostel Resident • Booking Blocked</div>
-                  </div>
-                </div>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
-              </button>
-
-              {/* Driver Preset */}
-              <button
-                id="btn-demo-driver"
-                type="button"
-                onClick={() => handleQuickLogin('DRIVER')}
-                className="p-2.5 bg-slate-800 hover:bg-slate-700/80 border border-slate-700 rounded-xl text-left transition-all flex items-center justify-between group"
-              >
-                <div className="flex items-center space-x-2">
-                  <div className="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xs font-bold">
-                    DR
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-white group-hover:text-blue-300 transition-colors">
-                      Selvam K. (Driver)
-                    </div>
-                    <div className="text-[10px] text-slate-400 font-medium">Bus #01 • Adyar Corridor</div>
-                  </div>
-                </div>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
-              </button>
-
-              {/* Admin Preset */}
-              <button
-                id="btn-demo-admin"
-                type="button"
-                onClick={() => handleQuickLogin('ADMIN')}
-                className="p-2.5 bg-slate-800 hover:bg-slate-700/80 border border-slate-700 rounded-xl text-left transition-all flex items-center justify-between group"
-              >
-                <div className="flex items-center space-x-2">
-                  <div className="w-7 h-7 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xs font-bold">
-                    AD
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-white group-hover:text-purple-300 transition-colors">
-                      Fleet Ops Director
-                    </div>
-                    <div className="text-[10px] text-purple-400 font-medium">Full Optimizer & Fleet Command</div>
-                  </div>
-                </div>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
-              </button>
-
-            </div>
-          </div>
 
         </div>
 
