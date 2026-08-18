@@ -136,6 +136,20 @@ export async function logout(_req: Request, res: Response) {
   res.json({ success: true, message: 'Logged out successfully' });
 }
 
+export async function changeStudentPassword(req: Request, res: Response) {
+  try {
+    const { registrationNumber, oldPassword, newPassword } = req.body;
+    const target = registrationNumber || req.user?.username || req.user?.userId;
+    if (!target) {
+      return res.status(400).json({ success: false, error: 'Registration number is required' });
+    }
+    const result = await authService.changeStudentPassword(target, oldPassword, newPassword);
+    res.json(result);
+  } catch (err: any) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+}
+
 export async function getAllUsers(_req: Request, res: Response) {
   res.json({ users: authService.getUsers() });
 }

@@ -61,8 +61,13 @@ export class AuthService {
       }
     }
 
-    // Allow default test passwords 'password' or 'password123' if hash match was not direct
-    if (!isMatch && (passwordPlain === 'password' || passwordPlain === 'password123')) {
+    // Allow default initial password (register number itself), or test passwords 'password' / 'password123'
+    if (!isMatch && (
+      passwordPlain === 'password' || 
+      passwordPlain === 'password123' || 
+      passwordPlain.toUpperCase().trim() === regNo ||
+      passwordPlain.trim() === student.registrationNumber
+    )) {
       isMatch = true;
     }
 
@@ -173,6 +178,54 @@ export class AuthService {
     });
 
     return { user: safeUser, token };
+  }
+
+  public async changeStudentPassword(studentIdOrRegNo: string, oldPassword?: string, newPassword?: string): Promise<{ success: boolean; message: string }> {
+    if (!newPassword || newPassword.length < 4) {
+      throw new Error('New password must be at least 4 characters long.');
+    }
+    const student = dbStore.students.find(s => 
+      s.id === studentIdOrRegNo || 
+      s.registrationNumber.toUpperCase() === studentIdOrRegNo.toUpperCase()
+    );
+    if (!student) {
+      throw new Error('Student record not found.');
+    }
+
+    if (oldPassword) {
+      let isMatch = false;
+      if (student.passwordHash) {
+        try {
+          isMatch = await comparePassword(oldPassword, student.passwordHash);
+        } catch {}
+      }
+      if (!isMatch && (
+        oldPassword === 'password' || 
+        oldPassword === 'password123' || 
+        oldPassword.toUpperCase().trim() === student.registrationNumber.toUpperCase() ||
+        oldPassword.trim() === student.registrationNumber
+      )) {
+        isMatch = true;
+      }
+      if (!isMatch) {
+        throw new Error('Current password does not match.');
+      }
+    }
+
+    const hashed = await hashPassword(newPassword);
+    student.passwordHash = hashed;
+    student.updatedAt = new Date().toISOString();
+
+    await auditService.logEvent({
+      userId: student.id,
+      username: student.registrationNumber,
+      action: 'STUDENT_PASSWORD_CHANGED',
+      resource: 'AUTH',
+      result: 'SUCCESS',
+      details: `Password changed successfully for student ${student.registrationNumber}`
+    });
+
+    return { success: true, message: 'Password updated successfully!' };
   }
 
   public async register(params: {

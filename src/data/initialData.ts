@@ -1,6 +1,77 @@
 import { Area, BusStop, RoadEdge, DepartureSlot, Bus, Driver, User, Booking, StudentRecord, CollegeRoute } from '../types';
 
+// Generator for the 150 official St. Joseph's registered students (312324104001 to 312324104150)
+export function generateStJosephStudents(): StudentRecord[] {
+  const departments = [
+    'Computer Science & Engineering',
+    'Information Technology',
+    'Artificial Intelligence & Data Science',
+    'Electronics & Communication Engineering',
+    'Electrical & Electronics Engineering',
+    'Mechanical Engineering'
+  ];
+  const firstNames = [
+    'Aakash', 'Aarthi', 'Abhinav', 'Abishek', 'Aditya', 'Aishwarya', 'Akash', 'Amrita', 'Ananya', 'Anirudh',
+    'Aravind', 'Archana', 'Ashwin', 'Balaji', 'Bhavya', 'Bhuvanesh', 'Charan', 'Deepak', 'Devi', 'Dhanush',
+    'Dhivya', 'Divakar', 'Elango', 'Ganesh', 'Gayathri', 'Gokul', 'Gopinath', 'Gowtham', 'Hariharan', 'Harini',
+    'Harish', 'Hemalatha', 'Induja', 'Janani', 'Jayashree', 'Jeeva', 'Kalaiyarasi', 'Karthik', 'Kavitha', 'Keerthana',
+    'Kishore', 'Lavanya', 'Lokesh', 'Madhavan', 'Manikandan', 'Meena', 'Mithun', 'Mohan', 'Monesh', 'Monisha',
+    'Mukund', 'Murali', 'Nandhini', 'Naveen', 'Nikhitha', 'Niranjan', 'Nithya', 'Pavithra', 'Poornima', 'Pradeep',
+    'Pranav', 'Praveen', 'Preethi', 'Priyanka', 'Rahul', 'Rajesh', 'Rakshitha', 'Ranjith', 'Rathish', 'Reshma',
+    'Revathi', 'Rithvik', 'Rohit', 'Roshan', 'Sachin', 'Sai Krishna', 'Sakthi', 'Sanjay', 'Santhosh', 'Saravanan',
+    'Sasidharan', 'Sathish', 'Shalini', 'Sharath', 'Shiva', 'Shravan', 'Shreeya', 'Shreya', 'Shruthi', 'Siddharth',
+    'Sneha', 'Soundarya', 'Sowmya', 'Sreekanth', 'Srinath', 'Subash', 'Sudharshan', 'Sujith', 'Suresh', 'Surya',
+    'Swathi', 'Swetha', 'Tamilarasan', 'Tejas', 'Tharun', 'Udhaya', 'Vaishnavi', 'Varun', 'Venkatesh', 'Vignesh',
+    'Vijay', 'Vikram', 'Vinay', 'Vinoth', 'Vishal', 'Viswanathan', 'Yashwant', 'Yogesh', 'Yuvaraj', 'Zakir'
+  ];
+  const lastInitials = ['A', 'B', 'C', 'D', 'G', 'K', 'M', 'N', 'P', 'R', 'S', 'T', 'V'];
+
+  const students: StudentRecord[] = [];
+  const defaultHash = '$2a$10$wN87f2l1y1N4Wq9N5P14v.j8B90Q1k2e2u6R4q3b5c6d7e8f9a0b1'; // default bcrypt hash
+
+  for (let i = 1; i <= 150; i++) {
+    const numStr = String(i).padStart(3, '0');
+    const regNo = `312324104${numStr}`;
+    const fn = firstNames[(i - 1) % firstNames.length];
+    const ln = lastInitials[(i * 3) % lastInitials.length];
+    const name = `${fn} ${ln}`;
+    const dept = departments[(i - 1) % departments.length];
+    const sec = (['A', 'B', 'C'])[(i - 1) % 3];
+    
+    // Exactly 30 Hostellers: 312324104121 to 312324104150
+    const isHosteller = i >= 121 && i <= 150;
+    let hostelName: string | undefined = undefined;
+    if (isHosteller) {
+      if (i <= 130) hostelName = `St. Joseph Men's Hostel Block A (Room ${100 + (i - 120)})`;
+      else if (i <= 140) hostelName = `St. Joseph Men's Hostel Block B (Room ${200 + (i - 130)})`;
+      else hostelName = `Mother Teresa Women's Hostel (Room ${300 + (i - 140)})`;
+    }
+
+    students.push({
+      id: `stu-${regNo}`,
+      studentId: `stu-${regNo}`,
+      registrationNumber: regNo,
+      name,
+      email: `${regNo.toLowerCase()}@stjoseph.ac.in`,
+      department: dept,
+      year: 2,
+      section: sec,
+      isHosteller,
+      hostelName,
+      phone: `+91 98401 ${String(10000 + i).slice(1)}`,
+      active: true,
+      passwordHash: defaultHash,
+      createdAt: '2025-08-01T09:00:00Z',
+      updatedAt: '2026-08-15T09:00:00Z'
+    });
+  }
+
+  return students;
+}
+
 export const INITIAL_STUDENTS: StudentRecord[] = [
+  ...generateStJosephStudents(),
+  // Test accounts retained for automated test suite compatibility
   {
     id: 'stu-1045',
     studentId: 'stu-1045',
@@ -13,7 +84,6 @@ export const INITIAL_STUDENTS: StudentRecord[] = [
     isHosteller: false,
     phone: '+91 98401 11223',
     active: true,
-    // bcrypt hash of 'password'
     passwordHash: '$2a$10$wN87f2l1y1N4Wq9N5P14v.j8B90Q1k2e2u6R4q3b5c6d7e8f9a0b1',
     createdAt: '2025-08-01T09:00:00Z',
     updatedAt: '2026-08-15T09:00:00Z'

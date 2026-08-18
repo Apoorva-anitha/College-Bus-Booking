@@ -9,8 +9,6 @@ import { AdminOptimizerView } from './components/AdminOptimizerView';
 import { AdminFleetManagement } from './components/AdminFleetManagement';
 import { InteractiveRouteMap } from './components/InteractiveRouteMap';
 import { DriverPortal } from './components/DriverPortal';
-import { ConcurrencyTestLab } from './components/ConcurrencyTestLab';
-import { SpringBootCodeViewer } from './components/SpringBootCodeViewer';
 import { AuditLogsViewer } from './components/AuditLogsViewer';
 import { StudentMasterManager } from './components/StudentMasterManager';
 import { DatabaseSettingsModal } from './components/DatabaseSettingsModal';
@@ -405,25 +403,13 @@ export function App() {
           />
         )}
 
-        {/* CONCURRENCY & ALGORITHMIC TEST LAB */}
-        {activeTab === 'concurrency-test' && (
-          <ConcurrencyTestLab
-            onReloadData={refreshAppData}
-          />
-        )}
-
-        {/* SPRING BOOT 3 & POSTGRESQL CODE REPOSITORY */}
-        {activeTab === 'spring-boot-code' && (
-          <SpringBootCodeViewer />
-        )}
-
       </main>
 
       {/* Footer */}
       <footer className="border-t border-slate-900 bg-slate-950/80 py-4 text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Smart College Transit & Multi-Corridor Route Optimization Platform</span>
-          <span className="font-mono text-slate-400">PostgreSQL Schema • Flyway V1-V11 • Spring Boot 3 Engine</span>
+          <span>St. Joseph's College of Engineering • Transport & Bus Booking Portal</span>
+          <span className="font-medium text-slate-400">Demand-Driven Transit System • Connected to Central Fleet Engine</span>
         </div>
       </footer>
 

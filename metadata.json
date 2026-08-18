@@ -1,6 +1,6 @@
 {
-  "name": "Smart College Bus Management & Route Optimizer",
-  "description": "Dynamic demand-driven college transit platform with multi-corridor route optimization, real-time booking concurrency protection, Adyar graph routing, and role-based portals for students, drivers, and transport administrators.",
+  "name": "St. Joseph Bus Booking",
+  "description": "Dynamic college bus booking and fleet dispatch system for St. Joseph's College of Engineering with registration number authentication, day-scholar validation, and multi-corridor route management.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -127,7 +127,7 @@ export const StudentBoardingPass: React.FC<StudentBoardingPassProps> = ({
               </div>
               <div>
                 <span className="text-[10px] uppercase tracking-widest font-bold text-blue-400">Digital Boarding Pass</span>
-                <h3 className="text-xl font-bold text-white tracking-tight">College Transit Network</h3>
+                <h3 className="text-xl font-bold text-white tracking-tight">St. Joseph's College Transit</h3>
               </div>
             </div>
 

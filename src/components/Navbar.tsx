@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { User, UserRole, DepartureSlot } from '../types';
 import { 
   Bus, 
@@ -15,8 +15,10 @@ import {
   LogOut,
   GraduationCap,
   Shield,
-  Layers
+  Layers,
+  KeyRound
 } from 'lucide-react';
+import { ChangePasswordModal } from './ChangePasswordModal';
 
 interface NavbarProps {
   currentUser: User;
@@ -44,6 +46,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   isLiveConnected = true,
   onOpenDatabaseModal
 }) => {
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+
   return (
     <header className="sticky top-0 z-50 bg-slate-900 border-b border-slate-800 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -51,17 +55,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           
           {/* Logo & Platform Title */}
           <div className="flex items-center space-x-3 cursor-pointer" onClick={() => onSelectTab(currentUser.role === 'STUDENT' ? 'student-book' : currentUser.role === 'DRIVER' ? 'driver-trip' : 'admin-demand')}>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
               <Bus className="w-5 h-5 text-white" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="font-bold text-white text-base tracking-tight">TransOptima</span>
+                <span className="font-bold text-white text-base tracking-tight">St. Joseph's Bus Booking</span>
                 <span className="text-[10px] uppercase font-semibold tracking-wider bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full border border-blue-500/30">
-                  {currentUser.role} DASHBOARD
+                  {currentUser.role} PORTAL
                 </span>
               </div>
-              <p className="text-xs text-slate-400 font-medium">Smart Dynamic Bus Route & Multi-Corridor Transit</p>
+              <p className="text-xs text-slate-400 font-medium">St. Joseph's College of Engineering • Transport Services</p>
             </div>
           </div>
 
@@ -72,7 +76,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   id="tab-student-book"
                   onClick={() => onSelectTab('student-book')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                     activeTab === 'student-book'
                       ? 'bg-blue-600 text-white shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
@@ -83,7 +87,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   id="tab-student-pass"
                   onClick={() => onSelectTab('student-pass')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                     activeTab === 'student-pass'
                       ? 'bg-blue-600 text-white shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
@@ -160,7 +164,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 id="tab-driver-trip"
                 onClick={() => onSelectTab('driver-trip')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   activeTab === 'driver-trip'
                     ? 'bg-emerald-600 text-white shadow-sm'
                     : 'text-slate-300 hover:bg-slate-800 hover:text-white'
@@ -170,7 +174,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             )}
 
-            {/* Global Tools available in all views */}
+            {/* Live Interactive Route Map */}
             <button
               id="tab-map"
               onClick={() => onSelectTab('map-view')}
@@ -181,33 +185,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <Radio className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-              <span>Adyar Road Graph</span>
-            </button>
-
-            <button
-              id="tab-concurrency"
-              onClick={() => onSelectTab('concurrency-test')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center space-x-1 ${
-                activeTab === 'concurrency-test'
-                  ? 'bg-amber-600 text-white shadow-sm'
-                  : 'text-amber-400 hover:bg-slate-800'
-              }`}
-            >
-              <FlaskConical className="w-3.5 h-3.5" />
-              <span>Concurrency Lab</span>
-            </button>
-
-            <button
-              id="tab-artifacts"
-              onClick={() => onSelectTab('spring-boot-code')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center space-x-1 ${
-                activeTab === 'spring-boot-code'
-                  ? 'bg-slate-700 text-white'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
-              <Code2 className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Spring Boot 3 / Postgres</span>
+              <span>Live Route Map</span>
             </button>
           </nav>
 
@@ -240,29 +218,52 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             </div>
 
-            {/* Quick Role Switcher Dropdown */}
-            <div className="flex items-center space-x-2 bg-slate-800 px-2 py-1 rounded-xl border border-slate-700">
-              <div className={`w-2 h-2 rounded-full ${
-                currentUser.role === 'ADMIN' ? 'bg-purple-400' :
-                currentUser.role === 'DRIVER' ? 'bg-emerald-400' : 'bg-blue-400'
-              }`} />
-              <select
-                id="role-switcher-select"
-                aria-label="Switch active test user or role"
-                value={currentUser.id}
-                onChange={(e) => {
-                  const u = users.find(x => x.id === e.target.value);
-                  if (u) onSwitchUser(u);
-                }}
-                className="bg-transparent text-xs font-semibold text-white focus:outline-none cursor-pointer pr-1"
-              >
-                {users.map(u => (
-                  <option key={u.id} value={u.id} className="bg-slate-900 text-white">
-                    {u.name} ({u.role})
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* User Controls: Student Profile vs Admin Role Switcher */}
+            {currentUser.role === 'STUDENT' ? (
+              <div className="flex items-center space-x-2">
+                <div className="hidden sm:flex items-center space-x-2 bg-slate-800 px-2.5 py-1 rounded-xl border border-slate-700">
+                  <div className={`w-2 h-2 rounded-full ${currentUser.studentProfile?.isHosteller ? 'bg-amber-400' : 'bg-blue-400'}`} />
+                  <span className="text-xs font-bold text-white max-w-[120px] truncate">{currentUser.name}</span>
+                  <span className="text-[10px] bg-slate-700 text-slate-300 font-mono px-1.5 py-0.5 rounded">
+                    {currentUser.studentProfile?.registrationNumber || 'STUDENT'}
+                  </span>
+                </div>
+
+                {/* Change Password Button */}
+                <button
+                  id="btn-navbar-change-pwd"
+                  onClick={() => setIsPasswordModalOpen(true)}
+                  className="p-1.5 sm:px-2.5 sm:py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl border border-slate-700 transition-all flex items-center space-x-1 text-xs font-medium"
+                  title="Change your account password"
+                >
+                  <KeyRound className="w-3.5 h-3.5 text-blue-400" />
+                  <span className="hidden md:inline">Password</span>
+                </button>
+              </div>
+            ) : (
+              /* Quick Role Switcher for Admin & Drivers */
+              <div className="flex items-center space-x-2 bg-slate-800 px-2 py-1 rounded-xl border border-slate-700">
+                <div className={`w-2 h-2 rounded-full ${
+                  currentUser.role === 'ADMIN' ? 'bg-purple-400' : 'bg-emerald-400'
+                }`} />
+                <select
+                  id="role-switcher-select"
+                  aria-label="Switch active test user or role"
+                  value={currentUser.id}
+                  onChange={(e) => {
+                    const u = users.find(x => x.id === e.target.value);
+                    if (u) onSwitchUser(u);
+                  }}
+                  className="bg-transparent text-xs font-semibold text-white focus:outline-none cursor-pointer pr-1"
+                >
+                  {users.map(u => (
+                    <option key={u.id} value={u.id} className="bg-slate-900 text-white">
+                      {u.name} ({u.role})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {/* Sign Out / Exit button */}
             <button
@@ -279,6 +280,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         </div>
       </div>
+
+      {/* Password Change Dialog */}
+      <ChangePasswordModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+        registrationNumber={currentUser.studentProfile?.registrationNumber}
+        studentName={currentUser.name}
+      />
     </header>
   );
 };

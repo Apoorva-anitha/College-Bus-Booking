@@ -75,7 +75,7 @@ export const StudentBooking: React.FC<StudentBookingProps> = ({
         })
       });
 
-      const data = await safeJson(res, { success: false, error: 'Network error processing booking' });
+      const data = await safeJson<{ success?: boolean; error?: string; message?: string; booking?: Booking }>(res, { success: false, error: 'Network error processing booking' });
       if (!res.ok || data.success === false) {
         throw new Error(data.error || data.message || 'Failed to confirm booking');
       }

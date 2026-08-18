@@ -76,7 +76,7 @@ export const DatabaseSettingsModal: React.FC<DatabaseSettingsModalProps> = ({
         },
         body: JSON.stringify({ connectionString })
       });
-      const data = await safeJson(res, { success: false, message: 'Failed to test connection' });
+      const data = await safeJson<{ success: boolean; message?: string; version?: string }>(res, { success: false, message: 'Failed to test connection' });
       setTestResult({
         tested: true,
         success: data.success,
@@ -104,7 +104,7 @@ export const DatabaseSettingsModal: React.FC<DatabaseSettingsModalProps> = ({
         },
         body: JSON.stringify({ connectionString })
       });
-      const data = await safeJson(res, { success: false, message: 'Failed to connect database' });
+      const data = await safeJson<{ success: boolean; message?: string; version?: string }>(res, { success: false, message: 'Failed to connect database' });
       setTestResult({
         tested: true,
         success: data.success,

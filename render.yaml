@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: st-joseph-bus-booking
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: singapore # or frankfurt, oregon, ohio
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000

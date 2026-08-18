@@ -25,8 +25,8 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
   const [roleTab, setRoleTab] = useState<'STUDENT' | 'DRIVER' | 'ADMIN'>('STUDENT');
   
   // Student Form State
-  const [studentRegNo, setStudentRegNo] = useState('23CSE1045');
-  const [studentPassword, setStudentPassword] = useState('password');
+  const [studentRegNo, setStudentRegNo] = useState('312324104001');
+  const [studentPassword, setStudentPassword] = useState('312324104001');
   
   // Driver / Admin Form State
   const [username, setUsername] = useState('admin_transport');
@@ -45,7 +45,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
         const res = await apiFetch('/api/auth/student/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ registrationNumber: '23CSE1045', password: 'password' })
+          body: JSON.stringify({ registrationNumber: '312324104001', password: '312324104001' })
         });
         const data = await safeJson(res, null);
         if (res.ok && data?.user) {
@@ -56,7 +56,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
         const res = await apiFetch('/api/auth/student/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ registrationNumber: '23CSE1046', password: 'password' })
+          body: JSON.stringify({ registrationNumber: '312324104125', password: '312324104125' })
         });
         const data = await safeJson(res, null);
         if (res.ok && data?.user) {
@@ -109,7 +109,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
             password: studentPassword
           })
         });
-        const data = await safeJson(res, { error: 'Authentication failed' });
+        const data = await safeJson<{ success?: boolean; user?: User; token?: string; error?: string }>(res, { error: 'Authentication failed' });
         if (!res.ok || !data.user) {
           throw new Error(data.error || 'Authentication failed');
         }
@@ -123,7 +123,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
             password: password
           })
         });
-        const data = await safeJson(res, { error: 'Authentication failed' });
+        const data = await safeJson<{ success?: boolean; user?: User; token?: string; error?: string }>(res, { error: 'Authentication failed' });
         if (!res.ok || !data.user) {
           throw new Error(data.error || 'Authentication failed');
         }
@@ -149,14 +149,14 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
         {/* Brand Header */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold">
-            <Zap className="w-3.5 h-3.5" />
-            <span>Smart College Transit & Multi-Corridor Fleet Intelligence</span>
+            <Bus className="w-3.5 h-3.5" />
+            <span>St. Joseph's College of Engineering • Transport Department</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Campus Transit Portal
+            St. Joseph's Bus Booking
           </h1>
           <p className="text-slate-400 text-xs sm:text-sm max-w-lg mx-auto">
-            Log in to access your designated dashboard: Student Seat Reservations, Driver Boarding Roster, or Fleet Dispatcher Command Hub.
+            Official portal for Student Seat Booking, Driver Trip Manifests, and Fleet Dispatch Management.
           </p>
         </div>
 
@@ -167,7 +167,8 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
           <div 
             onClick={() => {
               setRoleTab('STUDENT');
-              setStudentRegNo('23CSE1045');
+              setStudentRegNo('312324104001');
+              setStudentPassword('312324104001');
             }}
             className={`cursor-pointer rounded-xl p-4 border transition-all ${
               roleTab === 'STUDENT'
@@ -252,7 +253,8 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
               id="auth-tab-student"
               onClick={() => {
                 setRoleTab('STUDENT');
-                setStudentRegNo('23CSE1045');
+                setStudentRegNo('312324104001');
+                setStudentPassword('312324104001');
                 setErrorMessage(null);
               }}
               className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center space-x-2 ${
@@ -270,6 +272,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
               onClick={() => {
                 setRoleTab('DRIVER');
                 setUsername('driver_selvam');
+                setPassword('password');
                 setErrorMessage(null);
               }}
               className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center space-x-2 ${
@@ -287,6 +290,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
               onClick={() => {
                 setRoleTab('ADMIN');
                 setUsername('admin_transport');
+                setPassword('password');
                 setErrorMessage(null);
               }}
               className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center space-x-2 ${
@@ -312,35 +316,39 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
             {roleTab === 'STUDENT' ? (
               <>
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-slate-300">
-                    College Registration Number
-                  </label>
+                  <div className="flex justify-between items-center">
+                    <label className="block text-xs font-semibold text-slate-300">
+                      College Registration Number
+                    </label>
+                    <span className="text-[11px] text-blue-400 font-mono">Range: 312324104001 - 312324104150</span>
+                  </div>
                   <div className="relative">
                     <input
                       id="input-student-regno"
                       type="text"
                       required
-                      placeholder="e.g. 23CSE1045 or 23CSE1046"
+                      placeholder="e.g. 312324104001 or 312324104125"
                       value={studentRegNo}
                       onChange={(e) => setStudentRegNo(e.target.value.toUpperCase())}
                       className="w-full pl-3.5 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white font-mono text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500"
                     />
                   </div>
                   <p className="text-[11px] text-slate-400">
-                    Authoritative identity check: Day Scholar registrations are permitted for bus booking; hostellers are restricted.
+                    Day Scholars (312324104001–312324104120) are eligible to book seats; Hostellers (312324104121–312324104150) reside on campus.
                   </p>
                 </div>
 
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-center">
                     <label className="block text-xs font-semibold text-slate-300">Password</label>
-                    <span className="text-[11px] text-slate-500 font-mono">Default: password</span>
+                    <span className="text-[11px] text-slate-400 font-mono">Initial: Registration Number itself</span>
                   </div>
                   <div className="relative">
                     <input
                       id="input-student-password"
                       type="password"
                       required
+                      placeholder="Enter registration number or changed password"
                       value={studentPassword}
                       onChange={(e) => setStudentPassword(e.target.value)}
                       className="w-full pl-3.5 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500"
@@ -431,7 +439,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
                   </div>
                   <div>
                     <div className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors">
-                      Arun Kumar (23CSE1045)
+                      Aakash A (312324104001)
                     </div>
                     <div className="text-[10px] text-emerald-400 font-medium">Day Scholar • Bus Eligible</div>
                   </div>
@@ -452,7 +460,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
                   </div>
                   <div>
                     <div className="text-xs font-bold text-white group-hover:text-amber-300 transition-colors">
-                      Karthik Raman (23CSE1046)
+                      Divakar G (312324104125)
                     </div>
                     <div className="text-[10px] text-amber-400 font-medium">Hostel Resident • Booking Blocked</div>
                   </div>
@@ -509,7 +517,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
 
         {/* Technical Stack Footer */}
         <div className="text-center text-[11px] text-slate-500 space-x-4">
-          <span>Spring Boot 3 REST Backend</span>
+          <span>Node.js REST Backend</span>
           <span>•</span>
           <span>PostgreSQL 16 Engine</span>
           <span>•</span>
